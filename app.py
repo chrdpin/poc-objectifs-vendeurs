@@ -84,7 +84,10 @@ if not df_vendeurs.empty:
         df_envoi = df_sauvegarde[["ID_VENDEUR", "NOM_VENDEUR", "ANNEE_MOIS", "VOLUME_OBJECTIF_VN"]].copy()
 
         # ASTUCE : On renomme la table temporaire en V2 pour forcer Snowflake à la recréer proprement
-        session.write_pandas(df_envoi, "TEMP_OBJ_VN_V2", overwrite=True, table_type="temporary")
+        # On convertit le dataframe pandas en dataframe natif Snowpark, puis on l'écrit proprement
+        df_snowpark = session.create_dataframe(df_envoi)
+        df_snowpark.write.mode("overwrite").save_as_table("TEMP_OBJ_VN_V2", table_type="temporary")
+        
 
         # Mise à jour du MERGE avec la table V2
         merge_sql = f"""
