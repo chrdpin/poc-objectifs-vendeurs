@@ -1,6 +1,6 @@
 import streamlit as st
-from snowflake.snowpark.context import get_active_session
 import pandas as pd
+from snowflake.snowpark import Session
 
 # 1. Configuration graphique
 st.set_page_config(page_title="🎯 Saisie des Objectifs VN", layout="wide")
