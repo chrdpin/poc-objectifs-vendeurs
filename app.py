@@ -38,12 +38,7 @@ session = Session.builder.configs(connection_parameters).create()
 
 
 
-# 1. Configuration graphique
-st.set_page_config(page_title="🎯 Saisie des Objectifs VN", layout="wide")
-st.title("🎯 Pilotage des Objectifs VN par Vendeur")
 
-connection_parameters = st.secrets["snowflake"]
-session = Session.builder.configs(connection_parameters).create()
 
 # --- SIMULATION DE CONNEXION MANAGERIALE (LHM) ---
 gerant_connecte = st.sidebar.selectbox("Simuler connexion en tant que :", ["Gérant 1", "Gérant 2"])
