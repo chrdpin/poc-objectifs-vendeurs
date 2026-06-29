@@ -5,38 +5,31 @@ from snowflake.snowpark import Session
 
 
 
+from cryptography.hazmat.primitives import serialization # <-- L'import indispensable
 
+st.set_page_config(page_title="🎯 Saisie des Objectifs VN", layout="wide")
+st.title("🎯 Pilotage des Objectifs VN par Vendeur")
 
-import streamlit as st
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives import serialization
+# --- CONNEXION SÉCURISÉE KEY-PAIR ---
+connection_parameters = st.secrets["snowflake"].to_dict()
 
-st.warning("⚠️ GÉNÉRATEUR DE CLÉS SÉCURISÉ ⚠️")
-mot_de_passe = st.text_input("Entrez le code PIN pour générer les clés :", type="password")
-
-if mot_de_passe == "POC2026!": # Seul toi connais ce code
-    key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-    private_key = key.private_bytes(
-        encoding=serialization.Encoding.PEM,
+# Le serveur formate la clé privée cryptographique
+if "private_key" in connection_parameters:
+    p_key_str = connection_parameters["private_key"]
+    p_key = serialization.load_pem_private_key(
+        p_key_str.encode('utf-8'),
+        password=None
+    )
+    pkb = p_key.private_bytes(
+        encoding=serialization.Encoding.DER,
         format=serialization.PrivateFormat.PKCS8,
         encryption_algorithm=serialization.NoEncryption()
     )
-    public_key = key.public_key().public_bytes(
-        encoding=serialization.Encoding.PEM,
-        format=serialization.PublicFormat.SubjectPublicKeyInfo
-    )
-    st.text("CLÉ PRIVÉE (Pour les Secrets Streamlit) :")
-    st.code(private_key.decode('utf-8'))
-    st.text("CLÉ PUBLIQUE (Pour Snowflake) :")
-    st.code(public_key.decode('utf-8'))
+    connection_parameters["private_key"] = pkb
 
-st.stop()
-
-
-
-
-
-
+# Création de la session (Snowflake verra la clé et laissera passer)
+session = Session.builder.configs(connection_parameters).create()
+# ------------------------------------
 
 
 
