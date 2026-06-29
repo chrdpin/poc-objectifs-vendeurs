@@ -2,6 +2,49 @@ import streamlit as st
 import pandas as pd
 from snowflake.snowpark import Session
 
+
+
+
+
+
+import streamlit as st
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
+
+st.warning("⚠️ GÉNÉRATEUR DE CLÉS SÉCURISÉ ⚠️")
+mot_de_passe = st.text_input("Entrez le code PIN pour générer les clés :", type="password")
+
+if mot_de_passe == "POC2026!": # Seul toi connais ce code
+    key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    private_key = key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption()
+    )
+    public_key = key.public_key().public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo
+    )
+    st.text("CLÉ PRIVÉE (Pour les Secrets Streamlit) :")
+    st.code(private_key.decode('utf-8'))
+    st.text("CLÉ PUBLIQUE (Pour Snowflake) :")
+    st.code(public_key.decode('utf-8'))
+
+st.stop()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # 1. Configuration graphique
 st.set_page_config(page_title="🎯 Saisie des Objectifs VN", layout="wide")
 st.title("🎯 Pilotage des Objectifs VN par Vendeur")
